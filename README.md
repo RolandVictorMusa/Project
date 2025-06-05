@@ -1,5 +1,4 @@
 # 🔐 Secure Client-Server Communication with Fernet Encryption and Wireshark
-![Wireshark Preview](https://github.com/RolandVictorMusa/Project/blob/8ea4547f7300f1cd05aef132c9bb32f885c588b9/ChatGPT%20Image%20May%2026%2C%202025%2C%2011_15_00%20AM.png)
 
 ## 📌 Introduction
 
@@ -19,7 +18,7 @@ We’ll observe both plaintext and encrypted traffic using **Wireshark**.
 ## 🧰 Tools Required
 
 * Python 3
-* "cryptography" Python package
+* `cryptography` Python package
 * Wireshark (packet analyzer)
 * Two terminals or machines (or use localhost)
 
@@ -27,7 +26,7 @@ We’ll observe both plaintext and encrypted traffic using **Wireshark**.
 
 ## 🌐 Topology Overview
 
-A basic client-server system exchanging messages on TCP port "9090".
+A basic client-server system exchanging messages on TCP port `9090`.
 
 ---
 
@@ -37,48 +36,39 @@ Simulate a client sending a message (e.g. badge check-in) to a server.
 
 ### 💻 Server Code (Plaintext)
 
-
+```python
 # server_plaintext.py
 import socket
 
 server = socket.socket()
-
 server.bind(('localhost', 9090))
-
 server.listen(1)
-
 print("Server listening on port 9090...")
 
 conn, addr = server.accept()
-
 data = conn.recv(1024)
-
 print(f"Received: {data.decode()}")
-
 conn.close()
-
+```
 
 ### 💻 Client Code (Plaintext)
 
-
+```python
 # client_plaintext.py
 import socket
 
 client = socket.socket()
-
 client.connect(('localhost', 9090))
-
 client.send(b"BadgeNumber: 12345")
-
 client.close()
-
+```
 
 ---
 
 ## 📡 Step 2 – Analyze with Wireshark (Unsecured)
 
 1. Open Wireshark
-2. Filter: "tcp.port == 9090"
+2. Filter: `tcp.port == 9090`
 3. Run server, then client
 4. Follow TCP stream
 
@@ -120,84 +110,68 @@ Use **Fernet** for symmetric AES-based encryption.
 
 ### 🔑 Generate Symmetric Key
 
-
+```python
 # generate_key.py
 from cryptography.fernet import Fernet
 
 key = Fernet.generate_key()
-
 with open("secret_key.key", "wb") as f:
+    f.write(key)
+```
 
-   f.write(key)
-
-
-Share "secret_key.key" with both client and server.
+Share `secret_key.key` with both client and server.
 
 ---
 
 ### 💻 Server Code (Encrypted)
 
-
+```python
 # server_encrypted.py
 import socket
 from cryptography.fernet import Fernet
 
 with open("secret_key.key", "rb") as f:
-
-   key = f.read()
-    
+    key = f.read()
 fernet = Fernet(key)
 
 server = socket.socket()
-
 server.bind(('localhost', 9090))
-
 server.listen(1)
-
 print("Server listening on port 9090...")
 
 conn, addr = server.accept()
-
 encrypted_data = conn.recv(1024)
-
 decrypted_data = fernet.decrypt(encrypted_data)
-
 print(f"Decrypted: {decrypted_data.decode()}")
-
 conn.close()
-
+```
 
 ---
 
 ### 💻 Client Code (Encrypted)
 
-
+```python
 # client_encrypted.py
 import socket
 from cryptography.fernet import Fernet
 
 with open("secret_key.key", "rb") as f:
-
-   key = f.read()
-   
+    key = f.read()
 fernet = Fernet(key)
 
 message = fernet.encrypt(b"BadgeNumber: 12345")
 
 client = socket.socket()
-
 client.connect(('localhost', 9090))
-
 client.send(message)
-
 client.close()
-
+```
 
 ---
 
 ## 🔍 Step 4 – Analyze with Wireshark (Encrypted)
 
-* Run Wireshark and filter: "tcp.port == 9090"
+* Run Wireshark and filter: `tcp.port == 9090`
 * Start encrypted server and client
 * Follow TCP stream
 
