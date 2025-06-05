@@ -1,4 +1,5 @@
 # 🔐 Secure Client-Server Communication with Fernet Encryption and Wireshark
+![Wireshark Preview](https://github.com/RolandVictorMusa/Project/blob/8ea4547f7300f1cd05aef132c9bb32f885c588b9/ChatGPT%20Image%20May%2026%2C%202025%2C%2011_15_00%20AM.png)
 
 ## 📌 Introduction
 
